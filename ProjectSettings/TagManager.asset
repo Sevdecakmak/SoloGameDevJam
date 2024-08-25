@@ -10,11 +10,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - bg
   - Water
   - UI
   - Player
-  - 
+  - ground
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: bg
+    uniqueID: 454188009
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
