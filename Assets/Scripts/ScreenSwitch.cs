@@ -4,13 +4,26 @@ public class ScreenSwitch : MonoBehaviour
 {
     public GameObject upperCharacter; // Üst ekrandaki karakter
     public GameObject lowerCharacter; // Alt ekrandaki karakter
-    public Vector3 lowerCharacterOffset; // Alt karakterin pozisyonu için offset (üst karaktere göre farklı parkurda)
+    public float transparency = 0.5f; // Silüet için transparanlık değeri
 
-    private bool isOnUpperScreen = true; // Karakter başlangıçta üst ekranda
+    private bool isOnUpperScreen = true; // Karakterin başlangıçta üst ekranda olduğunu varsayıyoruz
+
+    private SpriteRenderer upperSpriteRenderer;
+    private SpriteRenderer lowerSpriteRenderer;
+
+    void Start()
+    {
+        // Üst ve alt karakterin SpriteRenderer bileşenlerini alıyoruz
+        upperSpriteRenderer = upperCharacter.GetComponent<SpriteRenderer>();
+        lowerSpriteRenderer = lowerCharacter.GetComponent<SpriteRenderer>();
+
+        // Başlangıçta sadece üst karakter normal görünür, alt karakter silüet olur
+        SetCharacterVisibility();
+    }
 
     void Update()
     {
-        // Space tuşuna basıldığında ekranlar arasında geçiş yapılıyor
+        // Karakterin hareketi ve ekranlar arası geçiş için input
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SwitchScreen();
@@ -19,23 +32,33 @@ public class ScreenSwitch : MonoBehaviour
 
     void SwitchScreen()
     {
+        // Geçiş yapılıyor, hangi ekranda olduğunu tersine çeviriyoruz
+        isOnUpperScreen = !isOnUpperScreen;
+
+        // Görünürlük ayarlarını güncelliyoruz
+        SetCharacterVisibility();
+    }
+
+    void SetCharacterVisibility()
+    {
         if (isOnUpperScreen)
         {
-            // Karakteri üst ekrandan alt ekrana geçiriyoruz
-            upperCharacter.SetActive(false); // Üst ekran karakterini devre dışı bırak
-            lowerCharacter.SetActive(true);  // Alt ekran karakterini aktif hale getir
-            // Alt karakteri üst karakterin pozisyonuna göre farklı bir parkura taşı
-            lowerCharacter.transform.position = upperCharacter.transform.position + lowerCharacterOffset;
+            // Üst karakter normal, alt karakter silüet olur
+            SetAlpha(upperSpriteRenderer, 1f);  // Üst karakter tam görünür
+            SetAlpha(lowerSpriteRenderer, transparency);  // Alt karakter transparan
         }
         else
         {
-            // Karakteri alt ekrandan üst ekrana geçiriyoruz
-            upperCharacter.SetActive(true);
-            lowerCharacter.SetActive(false);
-            // Üst karakteri alt karakterin pozisyonuna göre taşı
-            upperCharacter.transform.position = lowerCharacter.transform.position - lowerCharacterOffset;
+            // Alt karakter normal, üst karakter silüet olur
+            SetAlpha(upperSpriteRenderer, transparency);  // Üst karakter transparan
+            SetAlpha(lowerSpriteRenderer, 1f);  // Alt karakter tam görünür
         }
+    }
 
-        isOnUpperScreen = !isOnUpperScreen; // Durumu tersine çeviriyoruz
+    void SetAlpha(SpriteRenderer spriteRenderer, float alpha)
+    {
+        Color color = spriteRenderer.color;
+        color.a = alpha;
+        spriteRenderer.color = color;
     }
 }
