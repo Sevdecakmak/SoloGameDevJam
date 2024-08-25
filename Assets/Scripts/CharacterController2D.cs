@@ -90,7 +90,9 @@ public class CharacterController2D : MonoBehaviour
             ghostCharacter.position = new Vector2(mainCharacter.position.x, upperParkour.position.y);
         }
 
+        ghostController.PlayTeleportAnimation(0.5f);
         ghostController.StartFollowing();
+        
     }
 
     // Parkur değiştirme fonksiyonu
