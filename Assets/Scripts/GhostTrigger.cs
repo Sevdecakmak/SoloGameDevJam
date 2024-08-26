@@ -10,7 +10,7 @@ public class GhostTrigger : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            mainCharacterController.TeleportGhostParallerlPosition();
+            mainCharacterController.TeleportGhostParallelPosition();
         }
     }
 }

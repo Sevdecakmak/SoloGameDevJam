@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class CharacterController2D : MonoBehaviour
     private Rigidbody2D mainRb;
     private Animator anim;
 
-    private bool isGrounded;
+    private bool isJumping;
 
     private GhostCharacterController ghostController;
 
@@ -39,13 +40,13 @@ public class CharacterController2D : MonoBehaviour
         anim.SetFloat("Speed", Mathf.Abs(moveX)); // Hızına göre yürüme animasyonu
 
         // Zıplama input'u
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
             Jump();
         }
 
-        // Yerde olup olmadığını animatorda ayarlamak için
-        anim.SetBool("isGrounded", isGrounded);
+        // Zıplama durumunu animatorda güncelle
+        anim.SetBool("isJumping", isJumping);
 
         // Parkur değiştirme
         if (Input.GetKeyDown(KeyCode.K) && ghostController.canFollow)
@@ -79,7 +80,7 @@ public class CharacterController2D : MonoBehaviour
         mainRb.velocity = new Vector2(moveX * moveSpeed, mainRb.velocity.y);
     }
 
-    public void TeleportGhostParallerlPosition()
+    public void TeleportGhostParallelPosition()
     {
         if (isOnUpperParkour)
         {
@@ -92,32 +93,30 @@ public class CharacterController2D : MonoBehaviour
 
         ghostController.PlayTeleportAnimation(0.5f);
         ghostController.StartFollowing();
-        
     }
 
     // Parkur değiştirme fonksiyonu
     void ToggleParkour()
     {
-            isOnUpperParkour = !isOnUpperParkour;
+        isOnUpperParkour = !isOnUpperParkour;
 
-            if (isOnUpperParkour)
-            {
-                mainCharacter.position = new Vector2(mainCharacter.position.x, upperParkour.position.y);
-            }
-            else
-            {
-                mainCharacter.position = new Vector2(mainCharacter.position.x, lowerParkour.position.y);
-            }
-        
+        if (isOnUpperParkour)
+        {
+            mainCharacter.position = new Vector2(mainCharacter.position.x, upperParkour.position.y);
+        }
+        else
+        {
+            mainCharacter.position = new Vector2(mainCharacter.position.x, lowerParkour.position.y);
+        }
     }
 
     // Zıplama fonksiyonu
     void Jump()
     {
-        if (isGrounded)
+        if (!isJumping)
         {
             mainRb.velocity = new Vector2(mainRb.velocity.x, jumpForce);  // Yalnızca zıplama kuvvetini uygula
-            isGrounded = false;
+            isJumping = true;
             anim.SetTrigger("Jump");  // Zıplama animasyonunu tetikle
             Debug.Log("Jumping!");
         }
@@ -126,17 +125,32 @@ public class CharacterController2D : MonoBehaviour
     // Yere temas kontrolü
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Platform"))
         {
-            isGrounded = true;  // Karakterin yere temas ettiğini belirt
+            isJumping = false;  // Karakter yere indi
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    // Trigger alanına giriş kontrolü
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (other.CompareTag("MergeTrigger")) // Trigger alanının tag'ı "MergeTrigger" olarak ayarlanmış olsun
         {
-            isGrounded = false;  // Karakterin yerden ayrıldığını belirt
+            // Ghost'u ana karakterle birleştir
+            ghostCharacter.position = mainCharacter.position;
+
+            ghostController.canFollow = false;
+
+        }
+
+        if (other.CompareTag("GameOver"))
+        {
+            SceneManager.LoadScene(2);
+        }
+
+        if (other.CompareTag("Finish"))
+        {
+            SceneManager.LoadScene(3);
         }
     }
 }

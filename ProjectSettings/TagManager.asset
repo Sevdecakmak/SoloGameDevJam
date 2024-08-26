@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Ground
   - Obstacle
+  - Platform
+  - MergeTrigger
+  - GameOver
   layers:
   - Default
   - TransparentFX
